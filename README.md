@@ -23,7 +23,7 @@ This package is meant to be used to quickly and easily search realtime through l
 Performance has therefore been a consideration from the start.
 
 
-Some things to consider with performance....
+Some things to consider with performance...
 ... (more to follow)
 
 ## Matching and scoring
@@ -141,9 +141,9 @@ These are not returned at the moment.
 A score of 1 means a "perfect" match.
 
 The score is influenced in the following ways:
-1. Negative matches (`!...`, `!^...`, `!....$` and `!^...$`) always return a score of 1 when there is no match.
+1. Negative matches (`!...`, `!^...`, `!...$` and `!^...$`) always return a score of 1 when there is no match.
 2. Exact matches (`'...`) get a base score of 0.125. This can be multiplied by 4 if the match is made at the start of the string, or by 2 if it matches the start of a word. In addition, it can be multiplied by 2 again if it matches a full word.
-3. Start or end matches (`^...`, `...$`, `^....$`) use exactly the same rules as `'...`, where it should be noted that `^...` always received the times 4 multiplier for being at the start of the string.
+3. Start or end matches (`^...`, `...$`, `^...$`) use exactly the same rules as `'...`, where it should be noted that `^...` always received the times 4 multiplier for being at the start of the string.
 4. Fuzzy match get a base score of 0.125, divided by 9 for each "break" in the match. So for instance the search word `gr` will score 0.125 for "the super**gr**eat rabbit", and 0.125 / 9 for "a bi**g** boa**r**". In addition to this, the start-matching and word-matching rules of rules 2 apply.
 5. Rules 2, 3 and 4 are also subject to case-penalty. For each uppercase HayStraw letter that is matched by a lowercase Needle letter, score is divided by 2.
 
