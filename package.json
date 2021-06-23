@@ -4,9 +4,10 @@
   "description": "A fuzzyfind matcher and scorer, based on the fzf syntax",
   "scripts": {
     "test": "jest --config jestconfig.json",
-    "prepare" : "npm run build",
-    "prepublishOnly" : "npm test",
-    "build": "tsc"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "build": "mkdir -p lib && (cd src && GOOS=js GOARCH=wasm go build -o ../lib/main.wasm) && tsc && cp src/wasm_exec.js src/example.html lib",
+    "clean": "rm -r lib"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -30,9 +31,10 @@
   },
   "homepage": "https://github.com/reinhrst/fzf-js#readme",
   "devDependencies": {
+    "@types/golang-wasm-exec": "^1.15.0",
     "@types/jest": "^26.0.23",
-    "jest": "^27.0.4",
-    "ts-jest": "^27.0.2",
-    "typescript": "^4.3.2"
+    "jest": "^27.0.5",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.3.4"
   }
 }

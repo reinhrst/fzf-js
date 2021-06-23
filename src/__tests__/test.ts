@@ -1,5 +1,31 @@
-import { Finder, HayStraw } from '../index';
-const DATA: HayStraw<{}>[] = [
+import { Fzf } from '../index';
+import {readFile} from "fs/promises"
+import {spawnSync} from "child_process"
+
+global.fetch = jest.fn(async (input: RequestInfo, _init?: RequestInit | undefined): Promise<Response> => {
+  if (input == "main.wasm") {
+    let filecontent: Buffer
+    try{
+      filecontent = await readFile("lib/main.wasm")
+    } catch (e) {
+      console.log("Error: ", e)
+      throw e
+    }
+    var ab = new ArrayBuffer(filecontent.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < filecontent.length; ++i) {
+        view[i] = filecontent[i];
+    }
+    const response = {
+      arrayBuffer: () => Promise.resolve(ab)
+    }
+    return response as Response
+  } else {
+    throw new Error("fetching not supported for " + input)
+  }
+})
+
+const DATA: string[] = [
   "abcdef",
   "cdefab",
   "acbdeg",
@@ -11,7 +37,7 @@ const DATA: HayStraw<{}>[] = [
   "hel$lo",
   "hel^lo",
   "hel!lo",
-].map((key: string) => ({key, item: {}}))
+]
 
 let TESTS: [string, string, string[]][] = [
   ["Exact match", "'ab", ["abcdef", "cdefab"]],
@@ -19,15 +45,19 @@ let TESTS: [string, string, string[]][] = [
   // expect reorder because cd at start or word should score higher
   ["Exact match start word bonus", "'cd", ["cdefab", "bc-cdef", "abcdef"]],
 
-  // special chars in exact match don't have extra meaning
-  ..."'!$^".split("").map(
+  // special chars in exact match don't have extra meaning (except $)
+  ..."'!^".split("").map(
     c => [`Exact match with ${c}`, `'hel${c}`, [`hel${c}lo`]]),
+
+  ["exact match ending in $ will ignore $", "'hel$",
+    DATA.filter(s => s.indexOf("hel") != -1)],
 
   // whole bunch of search strings that mean nothing and should return all
   ...["", " ", "  ", "^", " ^", "^ ^", " ^ ", "!", "! ^", "'", "' ! ^   !"].map(
-    needle => [`Should return everything`, needle, DATA.map(i => i.key)]),
+    needle => [`Should return everything`, needle, DATA]),
   // although....
   ["$ should just (fuzzy) search for $", "$", ["hello$", "hel$lo"]],
+
 
   ["Start of string match", "^ab", ["abcdef"]],
   ["Start of string match with ^", "^hel^", ["hel^lo"]],
@@ -56,7 +86,7 @@ TESTS = TESTS.concat(
     ([name, needle, expected]) => [
       "Not " + name,
       "!" + (needle[0] == "'" ? needle.slice(1) : needle),
-      DATA.map(d => d.key).filter(k => expected.indexOf(k) == -1),
+      DATA.filter(k => expected.indexOf(k) == -1),
     ])
 );
 
@@ -66,11 +96,19 @@ TESTS = TESTS.concat([
 ]);
 
 for (const [name, needle, expected] of TESTS) {
-  test(name + ": " + JSON.stringify(needle), () => {
-    const finder = new Finder(DATA)
-    const result = finder.find(needle)
-    console.log(needle, result.map(r => r.score))
-    expect(result.map(hs => hs.key)).toStrictEqual(expected)
+  test(name + ": " + JSON.stringify(needle), async () => {
+    const fzf = spawnSync("fzf", ["--filter", needle], {
+      input: DATA.join("\n"),
+    })
+    const expectedResult = fzf.stdout.toString().split("\n").filter(s => s.length)
+    await Fzf.init()
+    const finder = new Fzf(DATA)
+    var searchPromise: Promise<SearchResult> = new Promise(resolve => {
+      finder.addResultListener(result => resolve(result))
+    })
+    finder.search(needle)
+    var result = await searchPromise
+    expect(result.matches.map(match => match.key)).toStrictEqual(expectedResult)
   });
 }
 

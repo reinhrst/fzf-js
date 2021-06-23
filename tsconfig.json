@@ -1,11 +1,20 @@
 {
     "compilerOptions": {
-        "module": "CommonJS",
-        "target": "ES5",
+        "outDir": "./lib/",
+        "sourceMap": true,
+        "strict": true,
+        "noImplicitReturns": true,
+        "noImplicitAny": true,
+        "module": "es6",
         "declaration": true,
-        "outDir": "./lib",
-        "strict": true
+        "moduleResolution": "node",
+        "target": "es5",
+        "allowJs": true,
+        "jsx": "react",
+        "esModuleInterop": true
     },
-    "include": ["src"],
-    "exclude": ["node_modules", "**/__tests__/*"]
+    "include": [
+        "./src/**/*",
+        "./src/*.d.ts"
+    ]
 }
