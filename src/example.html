@@ -9,6 +9,11 @@ license that can be found in the LICENSE file.
 <head>
 	<meta charset="utf-8">
 	<title>Fzf javascript example</title>
+<style>
+    span.searchhighlight {
+        font-weight: bold;
+    }
+</style>
 </head>
 
 <body>
@@ -19,6 +24,10 @@ license that can be found in the LICENSE file.
 	-->
 	<script type="module" src="index.js"></script>
 	<script type="module" src="example.js"></script>
+
+    <input id="search" type="search" />
+    <div id="output">
+    </div>
 </body>
 
 </html>
