@@ -104,6 +104,7 @@ class Fzf {
   static init(): Promise<void> {
     if (globalThis.fzfNew !== undefined) {
       // gopherjs path -- no need to load wasm
+      this._inited = true
       return Promise.resolve()
     }
 
@@ -123,11 +124,11 @@ class Fzf {
     WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
       go.run(result.instance)
       fzfConstants = fzfExposeConstants()
+      this._inited = true
       initResolve()
     }).catch((err) => {
       console.error(err);
     });
-    this._inited = true
     return this._initPromise
   }
 }

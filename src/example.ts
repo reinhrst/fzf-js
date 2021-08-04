@@ -13,6 +13,31 @@ function createElement(name: string, classList: string[], innerText?: string): H
 
 async function run() {
   await Fzf.init()
+  console.log("Fzf init complete");
+
+  // put Fzf in the global scope so that it can be played with from the console
+  (globalThis as any).Fzf = Fzf;
+  (globalThis as any).myFruitUrl = "https://gist.githubusercontent.com/reinhrst/1fcb49f0886621857f05c8e4969fc3b0/raw/da7b5a4d838ca8eddbc40377c7969d64aae6a1ce/data.json";
+
+  console.log("Fzf is now in global scope.")
+  console.log("If you want to play with it:")
+  console.log(`  let myFzf
+  // load sentences about fruit (myFruitUrl has been set for your pleasure :))
+  fetch(myFruitUrl)
+    .then(r => r.json())
+    .then(data => {
+      console.log("loaded")
+      myFzf = new Fzf(data);
+      console.log("myFzf ready");
+    })
+    // **** now wait until you see 'myFzf ready' (may take a while) ******
+    myFzf.addResultListener((result) => {
+      console.log("Searching for '" + result.needle + "' resulted in " + result.matches.length + " hits.")
+    })
+    myFzf.search("hello world")
+  `)
+
+
   const quoteText = await (await fetch("https://gist.githubusercontent.com/JakubPetriska/060958fd744ca34f099e947cd080b540/raw/963b5a9355f04741239407320ac973a6096cd7b6/quotes.csv")).text()
   // poor mans csv parser
   const quotes: [string, string][] = quoteText.split("\n")
