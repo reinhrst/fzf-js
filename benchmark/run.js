@@ -1,9 +1,9 @@
-const console={warn: print, log: print};
+const console={warn: print, log: print, error: () => {}};
 load("encoding.js");
-load("wasm_exec.js");
+load("wasm_exec_tinygo.js");
 
 async function run() {
-  const buf=read("main_go.wasm", "binary");
+  const buf=read("main_tinygo_opt2_gc-conservative.wasm", "binary");
   const lines=read("/tmp/lines.txt").split("\n").filter(line => line != "")
 
   const startTime = Date.now();
@@ -18,9 +18,9 @@ async function run() {
     const go = new Go();
     const wasmresult = await WebAssembly.instantiate(buf, go.importObject)
     go.run(wasmresult.instance);
-    fzfSetStartTimer(startTime)
+    fzfSetStartTimer(""+startTime)
     logTime("start")
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 4; i++) {
       let resolver
       let promise
       let result
