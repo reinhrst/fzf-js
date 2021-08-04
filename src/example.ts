@@ -12,6 +12,7 @@ function createElement(name: string, classList: string[], innerText?: string): H
 }
 
 async function run() {
+  await Fzf.init()
   const quoteText = await (await fetch("https://gist.githubusercontent.com/JakubPetriska/060958fd744ca34f099e947cd080b540/raw/963b5a9355f04741239407320ac973a6096cd7b6/quotes.csv")).text()
   // poor mans csv parser
   const quotes: [string, string][] = quoteText.split("\n")
@@ -22,7 +23,6 @@ async function run() {
 
   var searchStart: number
 
-  await Fzf.init()
   fzf = new Fzf(quotes.map(([_person, quote]) => quote));
   fzf.addResultListener((result: SearchResult): void => {
     const elapsed = Date.now() - searchStart

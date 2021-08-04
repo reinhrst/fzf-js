@@ -26,6 +26,7 @@ func ExposeConstants(this js.Value, args []js.Value) interface{} {
     }
 }
 
+
 func New(this js.Value, args []js.Value) interface{} {
     if !this.IsUndefined() {
         panic(`Expect "this" to be undefined`)
@@ -69,12 +70,14 @@ func New(this js.Value, args []js.Value) interface{} {
 
     myFzf := fzf.New(hayStack, opts)
     fzfs = append(fzfs, myFzf)
+
     go func() {
         for {
-            result, more := <- myFzf.GetResultCannel()
-            if more {
-                jsCallback.Invoke(SearchResultToJs(result))
+            result, more := <- myFzf.GetResultChannel()
+            if !more {
+                break;
             }
+            jsCallback.Invoke(SearchResultToJs(result))
         }
     }()
 
@@ -100,7 +103,7 @@ func End(this js.Value, args []js.Value) interface{} {
     if !this.IsUndefined() {
         panic(`Expect "this" to be undefined`)
     }
-    if len(args) != 2 {
+    if len(args) != 1 {
         panic(`Expect 1 argument: fzfNr`)
     }
     fzfNr := args[0].Int()
@@ -132,8 +135,6 @@ func SearchResultToJs(result fzf.SearchResult) map[string]interface{} {
 }
 
 func main() {
-    // fzf.ClaudeMatchOnce()
-	//fzf.Run(fzf.ParseOptions(), version, revision)
     c := make(chan struct{}, 0)
     js.Global().Set("fzfNew", js.FuncOf(New))
     js.Global().Set("fzfSearch", js.FuncOf(Search))

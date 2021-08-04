@@ -1,4 +1,4 @@
-import "./wasm_exec.js"
+import "./fzf-js.js"
 
 let fzfConstants: FzfConstants
 
@@ -102,6 +102,11 @@ class Fzf {
   }
 
   static init(): Promise<void> {
+    if (globalThis.fzfNew !== undefined) {
+      // gopherjs path -- no need to load wasm
+      return Promise.resolve()
+    }
+
     if (this._initPromise !== undefined) {
       return this._initPromise
     }
@@ -112,9 +117,9 @@ class Fzf {
       };
     }
 
-    const go = new Go();
     let initResolve: () => void
     this._initPromise = new Promise(resolve => {initResolve = () => resolve()})
+    const go = new Go();
     WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
       go.run(result.instance)
       fzfConstants = fzfExposeConstants()

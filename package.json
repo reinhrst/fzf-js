@@ -1,19 +1,11 @@
 {
   "name": "fzf-js",
-  "version": "0.9.0",
-  "description": "A fuzzyfind matcher and scorer, based on the fzf syntax",
+  "version": "0.0.1",
+  "description": "Demo of compiling fzf-lib to something to use in the browser",
   "scripts": {
-    "test": "jest --config jestconfig.json",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test",
-    "build": "mkdir -p lib && (cd src && GOOS=js GOARCH=wasm go build -o ../lib/main.wasm) && tsc && cp src/wasm_exec.js src/example.html lib",
-    "clean": "rm -r lib"
+    "build-go": "mkdir -p lib/go && (cd src && GOOS=js GOARCH=wasm go build -o ../lib/go/main.wasm) && tsc --outDir lib/go/ && cp $(go env GOROOT)/misc/wasm/wasm_exec.js lib/go/fzf-js.js && cat src/example.html | sed 's/##TITLE##/Go WASM target/' > lib/go/example.html",
+    "build-tinygo": "export TARGETDIR=lib/tinygo; mkdir -p ${TARGETDIR} && (cd src && tinygo build -target=wasm -opt 2 -o ../${TARGETDIR}/main.wasm) && tsc --outDir ${TARGETDIR}/ && cp $(tinygo env TINYGOROOT)/targets/wasm_exec.js ${TARGETDIR}/fzf-js.js && cat src/example.html | sed 's/##TITLE##/TinyGo WASM target/' > ${TARGETDIR}/example.html"
   },
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "files": [
-    "lib/**/*"
-  ],
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/reinhrst/fzf-js.git"
@@ -32,9 +24,6 @@
   "homepage": "https://github.com/reinhrst/fzf-js#readme",
   "devDependencies": {
     "@types/golang-wasm-exec": "^1.15.0",
-    "@types/jest": "^26.0.23",
-    "jest": "^27.0.5",
-    "ts-jest": "^27.0.3",
     "typescript": "^4.3.4"
   }
 }
