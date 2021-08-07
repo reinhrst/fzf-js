@@ -6,8 +6,6 @@ import (
 )
 
 
-var fzfs []*fzf.Fzf
-
 func ExposeConstants(this js.Value, args []js.Value) interface{} {
     if !this.IsUndefined() {
         panic(`Expect "this" to be undefined`)
@@ -31,12 +29,12 @@ func New(this js.Value, args []js.Value) interface{} {
     if !this.IsUndefined() {
         panic(`Expect "this" to be undefined`)
     }
-    if len(args) != 3 {
-        panic(`Expect three arguments: hayStack, options, callback`)
+    if len(args) != 2 {
+        panic(`Expect three arguments: hayStack, options`)
     }
     jsHayStack := args[0]
     jsOptions := args[1]
-    jsCallback := args[2]
+    var jsCallbacks []js.Value
 
     length := args[0].Length()
     if (length < 1) {
@@ -69,7 +67,6 @@ func New(this js.Value, args []js.Value) interface{} {
     }
 
     myFzf := fzf.New(hayStack, opts)
-    fzfs = append(fzfs, myFzf)
 
     go func() {
         for {
@@ -77,43 +74,46 @@ func New(this js.Value, args []js.Value) interface{} {
             if !more {
                 break;
             }
-            jsCallback.Invoke(SearchResultToJs(result))
+            for _, jsCallback := range jsCallbacks {
+                jsCallback.Invoke(searchResultToJs(result))
+            }
         }
     }()
 
-    return js.ValueOf(len(fzfs) - 1)
+    addResultListener := func (this js.Value, args []js.Value) interface{} {
+        if len(args) != 1 {
+            panic(`Expect 1 arguments: result listener`)
+        }
+        jsCallbacks = append(jsCallbacks, args[0])
+        return nil
+    }
+
+    search := func (this js.Value, args []js.Value) interface{} {
+        if len(args) != 1 {
+            panic(`Expect 1 arguments: needle`)
+        }
+        needle := args[0].String()
+        myFzf.Search(needle)
+        return nil
+    }
+
+    end := func (this js.Value, args []js.Value) interface{} {
+        if len(args) != 0 {
+            panic(`Expect no arguments`)
+        }
+        myFzf.End()
+        return nil
+    }
+
+    return map[string]interface{} {
+        "addResultListener": js.FuncOf(addResultListener),
+        "search": js.FuncOf(search),
+        "end": js.FuncOf(end),
+    }
 }
 
 
-func Search(this js.Value, args []js.Value) interface{} {
-    if !this.IsUndefined() {
-        panic(`Expect "this" to be undefined`)
-    }
-    if len(args) != 2 {
-        panic(`Expect 2 arguments: fzfNr and needle`)
-    }
-    fzfNr := args[0].Int()
-    needle := args[1].String()
-    myFzf := fzfs[fzfNr]
-    myFzf.Search(needle)
-    return nil
-}
-
-func End(this js.Value, args []js.Value) interface{} {
-    if !this.IsUndefined() {
-        panic(`Expect "this" to be undefined`)
-    }
-    if len(args) != 1 {
-        panic(`Expect 1 argument: fzfNr`)
-    }
-    fzfNr := args[0].Int()
-    myFzf := fzfs[fzfNr]
-    myFzf.End()
-    fzfs[fzfNr] = nil
-    return nil
-}
-
-func SearchResultToJs(result fzf.SearchResult) map[string]interface{} {
+func searchResultToJs(result fzf.SearchResult) map[string]interface{} {
     var matchResults []interface{}
     for _, match := range result.Matches {
         var positions []interface{}
@@ -137,8 +137,6 @@ func SearchResultToJs(result fzf.SearchResult) map[string]interface{} {
 func main() {
     c := make(chan struct{}, 0)
     js.Global().Set("fzfNew", js.FuncOf(New))
-    js.Global().Set("fzfSearch", js.FuncOf(Search))
-    js.Global().Set("fzfEnd", js.FuncOf(End))
     js.Global().Set("fzfExposeConstants", js.FuncOf(ExposeConstants))
     <-c
 }

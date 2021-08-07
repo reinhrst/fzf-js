@@ -34,11 +34,12 @@ declare type SearchResult = {
   matches: MatchResult[]
 }
 
-declare type FzfPointer = number
+declare type GoFzf = {
+  addResultListener: (listener: (result: SearchResult) => void) => void,
+  search: (string: string) => void,
+  end: () => void,
+}
 
 declare function fzfExposeConstants(): FzfConstants
 declare function fzfNew(hayStack: string[],
-                        options: Partial<FzfOptions>,
-                        resultCallback: (result: SearchResult) => void): FzfPointer
-declare function fzfSearch(fzfNr: FzfPointer, needle: string): null
-declare function fzfEnd(fzfNr: FzfPointer): null
+                        options: Partial<FzfOptions>): GoFzf

@@ -59,46 +59,40 @@ class Fzf {
   static _inited: boolean = false
   static _initPromise: Promise<void>
 
-  _fzfNr: FzfPointer | undefined
+  _fzf: GoFzf | undefined
   lastNeedle: string | undefined
-  _resultListeners: ((result: SearchResult) => void)[]
 
   constructor(hayStack: string[], options?: Partial<Options>) {
     if (!Fzf._inited) {
       throw new Error("Call `await Fzf.init()` first")
     }
-    this._resultListeners = []
-    this._fzfNr = fzfNew(
+    this._fzf = fzfNew(
       hayStack,
-      optionsToFzfOptions(options || {}),
-      this._resultCallback.bind(this),
+      optionsToFzfOptions(options || {})
     )
   }
 
   addResultListener(listener: (result: SearchResult) => void): void {
-    this._resultListeners.push(listener)
+    if (this._fzf == undefined) {
+      throw new Error("Fzf object already ended")
+    }
+    this._fzf.addResultListener(listener)
   }
 
   search(needle: string): void {
-    if (this._fzfNr == undefined) {
+    if (this._fzf == undefined) {
       throw new Error("Fzf object already ended")
     }
     this.lastNeedle = needle
-    fzfSearch(this._fzfNr, needle)
+    this._fzf.search(needle)
   }
 
   end() {
-    if (this._fzfNr == undefined) {
+    if (this._fzf == undefined) {
       throw new Error("Fzf object already ended")
     }
-    fzfEnd(this._fzfNr)
-    this._fzfNr = undefined
-  }
-
-  _resultCallback(result: SearchResult): void {
-    if (result.needle === this.lastNeedle) {
-      this._resultListeners.forEach(listener => {listener(result)})
-    }
+    this._fzf.end()
+    this._fzf = undefined
   }
 
   static init(): Promise<void> {
