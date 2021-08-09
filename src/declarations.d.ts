@@ -2,8 +2,8 @@ declare function fzfExposeConstants(): FzfConstants
 declare function fzfNew(hayStack: string[],
                         options: Partial<FzfOptions>): GoFzf
 
-declare type Case = number;
-declare type SortCriterion = number;
+declare type Case = { readonly __tag: unique symbol }
+declare type SortCriterion = { readonly __tag: unique symbol }
 
 declare type FzfConstants = {
   CaseSmart: Case

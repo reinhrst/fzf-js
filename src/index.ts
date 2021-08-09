@@ -60,5 +60,4 @@ class Fzf {
   }
 }
 
-
 export {Fzf}

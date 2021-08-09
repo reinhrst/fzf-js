@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "Demo of compiling fzf-lib to something to use in the browser",
   "scripts": {
-    "build-go": "TARGETDIR=lib/go; mkdir -p ${TARGETDIR} && (cd src && GOOS=js GOARCH=wasm go build -o ../${TARGETDIR}/main.wasm) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs && cp $(go env GOROOT)/misc/wasm/wasm_exec.js ${TARGETDIR}/ && cat src/example.html | sed 's/##TITLE##/Go WASM target/' > ${TARGETDIR}/example.html",
-    "build-tinygo": "export TARGETDIR=lib/tinygo; mkdir -p ${TARGETDIR} && (cd src && tinygo build -target=wasm -opt 2 -o ../${TARGETDIR}/main.wasm) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs && cp $(tinygo env TINYGOROOT)/targets/wasm_exec.js ${TARGETDIR}/ && cat src/example.html | sed 's/##TITLE##/TinyGo WASM target/' > ${TARGETDIR}/example.html",
-    "build-gopherjs": "export TARGETDIR=lib/gopherjs; mkdir -p ${TARGETDIR} && (cd src && ~/go/bin/gopherjs build . -o ../${TARGETDIR}/fzf-js.js) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs && cat src/example.html | sed 's/##TITLE##/Gopherjs/' > ${TARGETDIR}/example.html",
+    "build-go": "TARGETDIR=lib/go; mkdir -p ${TARGETDIR} && (cd src && GOOS=js GOARCH=wasm go build -o ../${TARGETDIR}/main.wasm) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs && cp $(go env GOROOT)/misc/wasm/wasm_exec.js ${TARGETDIR}/",
+    "build-tinygo": "export TARGETDIR=lib/tinygo; mkdir -p ${TARGETDIR} && (cd src && tinygo build -target=wasm -opt 2 -o ../${TARGETDIR}/main.wasm) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs && cp $(tinygo env TINYGOROOT)/targets/wasm_exec.js ${TARGETDIR}/",
+    "build-gopherjs": "export TARGETDIR=lib/gopherjs; mkdir -p ${TARGETDIR} && (cd src && ~/go/bin/gopherjs build . -o ../${TARGETDIR}/fzf-js.js) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs",
     "build-all": "npm run build-go && npm run build-tinygo && npm run build-gopherjs",
     "clean": "rm -r lib"
   },
