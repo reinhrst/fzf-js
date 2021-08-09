@@ -45,26 +45,7 @@ func New(this js.Value, args []js.Value) interface{} {
         hayStack = append(hayStack, jsHayStack.Index(i).String())
     }
 
-    opts := fzf.DefaultOptions()
-    if !jsOptions.Get("Extended").IsUndefined() {
-        opts.Extended = jsOptions.Get("Extended").Bool()
-    }
-    if !jsOptions.Get("Fuzzy").IsUndefined() {
-        opts.Fuzzy = jsOptions.Get("Fuzzy").Bool()
-    }
-    if !jsOptions.Get("CaseMode").IsUndefined() {
-        opts.CaseMode = fzf.Case(jsOptions.Get("CaseMode").Int())
-    }
-    if !jsOptions.Get("Sort").IsUndefined() {
-        sort := jsOptions.Get("Sort")
-        opts.Sort = nil
-        for i := 0; i < sort.Length(); i++ {
-            opts.Sort = append(opts.Sort, fzf.Criterion(sort.Index(i).Int()))
-        }
-    }
-    if !jsOptions.Get("Normalize").IsUndefined() {
-        opts.Normalize = jsOptions.Get("Normalize").Bool()
-    }
+    opts := parseOptions(jsOptions)
 
     myFzf := fzf.New(hayStack, opts)
 
@@ -112,6 +93,29 @@ func New(this js.Value, args []js.Value) interface{} {
     }
 }
 
+func parseOptions(jsOptions js.Value) fzf.Options {
+    opts := fzf.DefaultOptions()
+    if !jsOptions.Get("extended").IsUndefined() {
+        opts.Extended = jsOptions.Get("extended").Bool()
+    }
+    if !jsOptions.Get("fuzzy").IsUndefined() {
+        opts.Fuzzy = jsOptions.Get("fuzzy").Bool()
+    }
+    if !jsOptions.Get("caseMode").IsUndefined() {
+        opts.CaseMode = fzf.Case(jsOptions.Get("caseMode").Int())
+    }
+    if !jsOptions.Get("sort").IsUndefined() {
+        sort := jsOptions.Get("sort")
+        opts.Sort = nil
+        for i := 0; i < sort.Length(); i++ {
+            opts.Sort = append(opts.Sort, fzf.Criterion(sort.Index(i).Int()))
+        }
+    }
+    if !jsOptions.Get("normalize").IsUndefined() {
+        opts.Normalize = jsOptions.Get("normalize").Bool()
+    }
+    return opts
+}
 
 func searchResultToJs(result fzf.SearchResult) map[string]interface{} {
     var matchResults []interface{}

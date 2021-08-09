@@ -1,37 +1,26 @@
-declare module '*.go' {
-    const promise: Promise<Response>;
-    export default promise;
-}
+declare function fzfExposeConstants(): FzfConstants
+declare function fzfNew(hayStack: string[],
+                        options: Partial<FzfOptions>): GoFzf
+
+declare type Case = number;
+declare type SortCriterion = number;
 
 declare type FzfConstants = {
-  CaseSmart: number
-  CaseIgnore: number
-  CaseRespect: number
-  ByScore: number
-  ByBegin: number
-  ByEnd: number
-  ByLength: number
+  CaseSmart: Case
+  CaseIgnore: Case
+  CaseRespect: Case
+  ByScore: SortCriterion
+  ByBegin: SortCriterion
+  ByEnd: SortCriterion
+  ByLength: SortCriterion
 }
 
 declare type FzfOptions = {
-  // options with capitalization as used in Fzf
-  Extended: boolean
-  Fuzzy: boolean
-  CaseMode: number
-  Normalize: boolean
-  Sort: number[]
-}
-
-declare type MatchResult = {
-  key: string
-  hayIndex: number
-  score: number
-  positions: number[]
-}
-
-declare type SearchResult = {
-  needle: string
-  matches: MatchResult[]
+  extended: boolean
+  fuzzy: boolean
+  caseMode: Case
+  normalize: boolean
+  sort: SortCriterion[]
 }
 
 declare type GoFzf = {
@@ -40,6 +29,14 @@ declare type GoFzf = {
   end: () => void,
 }
 
-declare function fzfExposeConstants(): FzfConstants
-declare function fzfNew(hayStack: string[],
-                        options: Partial<FzfOptions>): GoFzf
+declare type SearchResult = {
+  needle: string
+  matches: MatchResult[]
+}
+
+declare type MatchResult = {
+  key: string
+  hayIndex: number
+  score: number
+  positions: number[]
+}
