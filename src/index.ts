@@ -32,7 +32,7 @@ class Fzf {
 
   constructor(hayStack: string[], options?: Partial<FzfOptions>) {
     this._fzf = fzfNew(
-      hayStack,
+      JSON.stringify(hayStack),
       options || {}
     )
   }
@@ -41,7 +41,9 @@ class Fzf {
     if (this._fzf == undefined) {
       throw new Error("Fzf object already ended")
     }
-    this._fzf.addResultListener(listener)
+    this._fzf.addResultListener((jsonResult) => {
+      listener(JSON.parse(jsonResult))
+    })
   }
 
   search(needle: string): void {

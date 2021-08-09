@@ -1,5 +1,5 @@
 declare function fzfExposeConstants(): FzfConstants
-declare function fzfNew(hayStack: string[],
+declare function fzfNew(hayStackJson: string,
                         options: Partial<FzfOptions>): GoFzf
 
 declare type Case = { readonly __tag: unique symbol }
@@ -24,7 +24,7 @@ declare type FzfOptions = {
 }
 
 declare type GoFzf = {
-  addResultListener: (listener: (result: SearchResult) => void) => void,
+  addResultListener: (listener: (result: string) => void) => void,
   search: (string: string) => void,
   end: () => void,
 }

@@ -5,6 +5,7 @@ import (
     "github.com/reinhrst/fzf-lib"
     "time"
     "strconv"
+    "encoding/json"
 )
 
 var startTime int64
@@ -47,17 +48,14 @@ func New(this js.Value, args []js.Value) interface{} {
     if len(args) != 2 {
         panic(`Expect two arguments: hayStack, options`)
     }
-    jsHayStack := args[0]
+    jsonHayStack := args[0].String()
     jsOptions := args[1]
     var jsCallbacks []js.Value
 
-    length := args[0].Length()
-    if (length < 1) {
-        panic(`Call fzf with at least one word in the hayStack`)
-    }
     var hayStack []string
-    for i :=0; i < jsHayStack.Length(); i++ {
-        hayStack = append(hayStack, jsHayStack.Index(i).String())
+    err := json.Unmarshal([]byte(jsonHayStack), &hayStack)
+    if err != nil {
+        panic(err)
     }
 
     opts := parseOptions(jsOptions)
@@ -73,7 +71,8 @@ func New(this js.Value, args []js.Value) interface{} {
             }
             for _, jsCallback := range jsCallbacks {
                 logTime("Result ready to send")
-                jsCallback.Invoke(searchResultToJs(result))
+                jsonData, _ := json.Marshal(searchResultToJs(result))
+                jsCallback.Invoke(string(jsonData))
                 logTime("Result sent")
             }
         }
