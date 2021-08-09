@@ -7,7 +7,6 @@
     "build-tinygo": "export TARGETDIR=lib/tinygo; mkdir -p ${TARGETDIR} && (cd src && tinygo build -target=wasm -opt 2 -o ../${TARGETDIR}/main.wasm) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs && cp $(tinygo env TINYGOROOT)/targets/wasm_exec.js ${TARGETDIR}/",
     "build-gopherjs": "export TARGETDIR=lib/gopherjs; mkdir -p ${TARGETDIR} && (cd src && ~/go/bin/gopherjs build . -o ../${TARGETDIR}/fzf-js.js) && tsc --outDir ${TARGETDIR}/ && cp ${TARGETDIR}/index.js ${TARGETDIR}/index.mjs",
     "build-all": "npm run build-go && npm run build-tinygo && npm run build-gopherjs",
-    "clean": "rm -r lib"
   },
   "repository": {
     "type": "git",
