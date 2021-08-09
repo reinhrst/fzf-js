@@ -3,7 +3,21 @@ package main
 import (
     "syscall/js"
     "github.com/reinhrst/fzf-lib"
+    "time"
+    "strconv"
 )
+
+var startTime int64
+func SetStartTime(this js.Value, args []js.Value) interface{} {
+    startTime, _ = strconv.ParseInt(args[0].String(), 10, 64)
+    return nil
+}
+
+
+func logTime(message string) {
+    t := int64(time.Now().UnixNano() / 1e6)
+    println(message, strconv.FormatInt(t, 10), strconv.FormatInt(t - startTime, 10))
+}
 
 
 func ExposeConstants(this js.Value, args []js.Value) interface{} {
@@ -26,6 +40,7 @@ func ExposeConstants(this js.Value, args []js.Value) interface{} {
 
 
 func New(this js.Value, args []js.Value) interface{} {
+    logTime("newStart")
     if !this.IsUndefined() {
         panic(`Expect "this" to be undefined`)
     }
@@ -46,6 +61,7 @@ func New(this js.Value, args []js.Value) interface{} {
     }
 
     opts := parseOptions(jsOptions)
+    logTime("newFinishedParse")
 
     myFzf := fzf.New(hayStack, opts)
 
@@ -56,7 +72,9 @@ func New(this js.Value, args []js.Value) interface{} {
                 break;
             }
             for _, jsCallback := range jsCallbacks {
+                logTime("Result ready to send")
                 jsCallback.Invoke(searchResultToJs(result))
+                logTime("Result sent")
             }
         }
     }()
@@ -86,6 +104,7 @@ func New(this js.Value, args []js.Value) interface{} {
         return nil
     }
 
+    logTime("newDone")
     return map[string]interface{} {
         "addResultListener": js.FuncOf(addResultListener),
         "search": js.FuncOf(search),
@@ -140,6 +159,7 @@ func searchResultToJs(result fzf.SearchResult) map[string]interface{} {
 
 func main() {
     c := make(chan struct{}, 0)
+    js.Global().Set("SetStartTime", js.FuncOf(SetStartTime))
     js.Global().Set("fzfNew", js.FuncOf(New))
     js.Global().Set("fzfExposeConstants", js.FuncOf(ExposeConstants))
     <-c
