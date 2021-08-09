@@ -30,7 +30,7 @@ func New(this js.Value, args []js.Value) interface{} {
         panic(`Expect "this" to be undefined`)
     }
     if len(args) != 2 {
-        panic(`Expect three arguments: hayStack, options`)
+        panic(`Expect two arguments: hayStack, options`)
     }
     jsHayStack := args[0]
     jsOptions := args[1]
